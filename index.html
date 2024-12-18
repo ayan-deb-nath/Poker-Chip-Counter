@@ -112,13 +112,13 @@
             padding: 30px;
             border-radius: 8px;
             width: 80%;
-            max-width: 800px;
-            max-height: 90vh;
+            max-width: 800px;  /* Increased width to fit more content */
+            max-height: 90vh;  /* Ensures it fits on the screen */
             overflow-y: auto;
-            font-size: 1.2em;
-            line-height: 1.5;
-            word-wrap: break-word;
-            white-space: normal;
+            font-size: 1.2em;  /* Slightly increased font size for readability */
+            line-height: 1.5;  /* Increased line height for better readability */
+            word-wrap: break-word; /* Ensure text wraps properly */
+            white-space: normal;  /* Ensure text wraps to the next line */
         }
         .close {
             position: absolute;
@@ -128,50 +128,53 @@
             cursor: pointer;
         }
         .info-icon {
-            cursor: pointer;
-            font-size: 3em;
-            position: fixed;
-            top: 20px;
-            right: 40px;
-            color: #fff;
-            background-color: #000;
-            border-radius: 50%;
-            width: 70px;
-            height: 70px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .game-history {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 300px;
-            max-height: 300px;
-            overflow-y: auto;
-            background-color: white;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 10px;
-            font-size: 0.9em;
-            z-index: 1000;
-        }
-        .game-history h3 {
-            margin-top: 0;
-        }
-        .round {
-            margin-bottom: 10px;
-            padding: 5px;
-            border-bottom: 1px solid #ddd;
-        }
+    cursor: pointer;
+    font-size: 3em; /* Icon size */
+    position: fixed;
+    top: 20px;
+    right: 40px; /* Adjusted position to the left */
+    color: #fff; /* Icon color */
+    background-color: #000; /* Circle background color */
+    border-radius: 50%; /* Ensure it's circular */
+    width: 70px; /* Set width */
+    height: 70px; /* Set height to the same value as width */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it stays visible */
+}
+
+/* Add styles for the game history */
+.game-history {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 300px;
+        max-height: 300px;
+        overflow-y: auto;
+        background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 10px;
+        font-size: 0.9em;
+        z-index: 1000; /* Ensure it stays visible */
+    }
+    .game-history h3 {
+        margin-top: 0;
+    }
+    .round {
+        margin-bottom: 10px;
+        padding: 5px;
+        border-bottom: 1px solid #ddd;
+    }
+
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Poker Chip Counter</h1>
-
+    
         <table>
             <tr>
                 <td><label for="playerName">Player Name:</label></td>
@@ -187,10 +190,10 @@
                 </td>
             </tr>
         </table>
-
+    
         <h2>Players</h2>
         <div id="playerList"></div>
-
+    
         <h2>Game Actions</h2>
         <table>
             <tr>
@@ -208,14 +211,13 @@
             <tr>
                 <td colspan="2">
                     <button class="winner" id="declareWinner">Declare Winner</button>
-                    <button class="undo" id="undoAction">Undo</button>
                 </td>
             </tr>
         </table>
     </div>
-
+    
     <span class="info-icon" onclick="showInfo()">i</span>
-
+    
     <!-- Modal -->
     <div class="modal" id="infoModal">
         <div class="modal-content">
@@ -224,7 +226,7 @@
             <pre id="instructionText"></pre>
         </div>
     </div>
-
+    
     <div class="game-history" id="gameHistory">
         <h3>Game History</h3>
     </div>
@@ -237,7 +239,6 @@
         const declareWinnerButton = document.getElementById('declareWinner');
         const betAmountInput = document.getElementById('betAmount');
         const winnerSelect = document.getElementById('winnerSelect');
-        const undoButton = document.getElementById('undoAction');
 
         let players = [];
         const chipValues = {
@@ -246,7 +247,6 @@
             blue: 10,
             green: 25
         };
-        const actionHistory = [];
 
         function renderPlayers() {
             playerList.innerHTML = '';
@@ -285,7 +285,6 @@
 
             if (name && !isNaN(chips)) {
                 players.push({ name, chips, folded: false, foldAmount: 0 });
-                actionHistory.push({ type: 'addPlayer' });
                 playerNameInput.value = '';
                 chipCountInput.value = '';
                 renderPlayers();
@@ -299,9 +298,7 @@
             const chipChange = parseInt(chipInput.value, 10);
 
             if (!isNaN(chipChange)) {
-                const prevChips = players[index].chips;
                 players[index].chips = chipChange;
-                actionHistory.push({ type: 'updateChips', index, prevChips });
                 renderPlayers();
             } else {
                 alert('Please enter a valid number.');
@@ -309,117 +306,180 @@
         }
 
         function addChips(index, chipType) {
-            const prevChips = players[index].chips;
             players[index].chips += chipValues[chipType];
-            actionHistory.push({ type: 'addChips', index, prevChips });
             renderPlayers();
         }
 
         function removePlayer(index) {
-            const player = players.splice(index, 1)[0];
-            actionHistory.push({ type: 'removePlayer', player });
+            players.splice(index, 1);
             renderPlayers();
         }
 
         function toggleFold(index) {
             const player = players[index];
 
-            const prevFolded = player.folded;
-            const prevFoldAmount = player.foldAmount;
-
             if (player.folded) {
                 player.folded = false;
-                player.foldAmount = 0;
+                player.foldAmount = 0;  // Reset fold amount when unfold
             } else {
-                player.folded = true;
-                player.foldAmount = player.chips;
-                player.chips = 0;
-            }
+                const foldedAmount = prompt('Enter how much you are folding for:');
+                const foldAmount = parseInt(foldedAmount, 10);
 
-            actionHistory.push({
-                type: 'toggleFold',
-                index,
-                prevFolded,
-                prevFoldAmount
-            });
+                if (isNaN(foldAmount) || foldAmount <= 0 || foldAmount > player.chips) {
+                    alert('Invalid fold amount.');
+                    return;
+                }
+
+                player.folded = true;
+                player.foldAmount = foldAmount; // Store the fold amount
+                player.chips -= foldAmount; // Deduct the fold amount immediately
+            }
 
             renderPlayers();
         }
 
         function declareWinner() {
-            const winnerIndex = winnerSelect.value;
             const betAmount = parseInt(betAmountInput.value, 10);
+            const winnerIndex = parseInt(winnerSelect.value, 10);
 
-            if (winnerIndex !== '' && !isNaN(betAmount)) {
-                const winner = players[winnerIndex];
-                winner.chips += betAmount;
-                actionHistory.push({ type: 'declareWinner', winnerIndex, betAmount });
-                renderPlayers();
-                updateGameHistory(winner.name, 'Won', betAmount);
-            } else {
-                alert('Please select a winner and enter a valid bet amount.');
-            }
-        }
-
-        function undoLastAction() {
-            if (actionHistory.length === 0) return;
-
-            const lastAction = actionHistory.pop();
-
-            switch (lastAction.type) {
-                case 'addPlayer':
-                    players.pop();
-                    break;
-                case 'updateChips':
-                    players[lastAction.index].chips = lastAction.prevChips;
-                    break;
-                case 'addChips':
-                    players[lastAction.index].chips = lastAction.prevChips;
-                    break;
-                case 'removePlayer':
-                    players.push(lastAction.player);
-                    break;
-                case 'toggleFold':
-                    const player = players[lastAction.index];
-                    player.folded = lastAction.prevFolded;
-                    player.foldAmount = lastAction.prevFoldAmount;
-                    break;
-                case 'declareWinner':
-                    players[lastAction.winnerIndex].chips -= lastAction.betAmount;
-                    break;
+            if (isNaN(betAmount) || isNaN(winnerIndex)) {
+                alert('Please enter a valid bet amount and select a winner.');
+                return;
             }
 
+            let totalPot = 0;
+
+            // Loop through all players and deduct the bet amount from non-winners
+            players.forEach((player, index) => {
+                if (player.folded) {
+                    totalPot += player.foldAmount;  // Add the folded player's chips to the pot
+                } else {
+                    totalPot += betAmount;  // Only active players contribute their bet amount
+                    player.chips -= betAmount; // Deduct the bet amount from active players
+                }
+            });
+
+            // Add the total pot to the winner's chips
+            players[winnerIndex].chips += totalPot;
+
+            // Call render to update the UI with the new chip counts
             renderPlayers();
-        }
-
-        function updateGameHistory(playerName, action, amount) {
-            const gameHistoryDiv = document.getElementById('gameHistory');
-            const roundDiv = document.createElement('div');
-            roundDiv.classList.add('round');
-            roundDiv.innerHTML = `${playerName} ${action} ${amount} chips.`;
-            gameHistoryDiv.appendChild(roundDiv);
-        }
-
-        function showInfo() {
-            const modal = document.getElementById('infoModal');
-            modal.style.display = 'flex';
-            document.getElementById('instructionText').textContent = `
-                1. Add players by entering their name and initial chip count.
-                2. Use the buttons to add chips (1, 5, 10, or 25 chips).
-                3. Players can fold, and their chips will be set to 0.
-                4. Declare a winner by selecting the winner and entering the bet amount.
-                5. You can undo the last action.
-            `;
-        }
-
-        function closeInfo() {
-            const modal = document.getElementById('infoModal');
-            modal.style.display = 'none';
         }
 
         addPlayerButton.addEventListener('click', addPlayer);
         declareWinnerButton.addEventListener('click', declareWinner);
-        undoButton.addEventListener('click', undoLastAction);
+
+        // Show instructions when clicking on "i" icon
+        function showInfo() {
+            const instructionText = `
+Poker Chip Counter - Instructions
+
+Purpose:
+This tool helps you manage poker chip counts for players during card games. You can add players, assign initial chips, place bets, and declare a winner. It's a virtual way to keep track of poker chips without using physical chips.
+
+How to Use:
+
+1. **Add Players:**
+   - Enter the player's name in the "Player Name" field.
+   - Enter the initial chip count for the player in the "Initial Chips" field.
+   - Click the "Add Player" button to add the player to the game.
+
+2. **Adjust Chips:**
+   - For each player, you can adjust their chip count by clicking the "+" buttons for white (1 chip), red (5 chips), blue (10 chips), or green (25 chips).
+   - You can also manually update the chip count by entering a value in the "Change amount" field and clicking the "Update" button.
+   
+3. **Fold/Unfold Player:**
+   - If a player wants to fold, click the "Fold" button.
+   - You will be asked to enter the fold amount (how many chips the player is folding).
+   - To unroll a folded player, click the "Unfold" button.
+
+4. **Declare Winner:**
+   - Enter the bet amount per player in the "Bet Amount" field.
+   - Select the winner from the dropdown list.
+   - Click "Declare Winner" to add the total pot (combined bet amounts) to the winner's chip count.
+   
+5. **Remove Player:**
+   - To remove a player from the game, click the "Remove" button next to their name.
+
+Enjoy using the Poker Chip Counter!
+
+Creator: Ayan Deb Nath
+
+Let’s be friends😄
+            `;
+            document.getElementById('instructionText').textContent = instructionText;
+            document.getElementById('infoModal').style.display = 'flex';
+        }
+
+        // Close the instruction modal when clicking outside
+        function closeInfo() {
+            document.getElementById('infoModal').style.display = 'none';
+        }
+
+        // Add event listener to close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('infoModal');
+            if (event.target === modal) {
+                closeInfo();
+            }
+        });
+
+        const gameHistory = [];
+
+    function declareWinner() {
+        const betAmount = parseInt(betAmountInput.value, 10);
+        const winnerIndex = parseInt(winnerSelect.value, 10);
+
+        if (isNaN(betAmount) || isNaN(winnerIndex)) {
+            alert('Please enter a valid bet amount and select a winner.');
+            return;
+        }
+
+        let totalPot = 0;
+        const roundDetails = { winner: players[winnerIndex].name, pot: 0, changes: [] };
+
+        // Loop through all players and deduct the bet amount from non-winners
+        players.forEach((player, index) => {
+            if (player.folded) {
+                totalPot += player.foldAmount;  // Add the folded player's chips to the pot
+            } else {
+                totalPot += betAmount;  // Only active players contribute their bet amount
+                player.chips -= betAmount; // Deduct the bet amount from active players
+                roundDetails.changes.push({ name: player.name, change: -betAmount });
+            }
+        });
+
+        // Add the total pot to the winner's chips
+        players[winnerIndex].chips += totalPot;
+        roundDetails.changes.push({ name: players[winnerIndex].name, change: totalPot });
+        roundDetails.pot = totalPot;
+
+        gameHistory.push(roundDetails); // Update the history array
+        renderPlayers();
+        renderGameHistory(); // Update the game history display
+    }
+
+    function renderGameHistory() {
+        const historyContainer = document.getElementById('gameHistory');
+        historyContainer.innerHTML = '<h3>Game History</h3>';
+
+        gameHistory.forEach((round, roundIndex) => {
+            const roundDiv = document.createElement('div');
+            roundDiv.className = 'round';
+            roundDiv.innerHTML = `
+                <strong>Round ${roundIndex + 1}</strong><br>
+                Winner: ${round.winner}<br>
+                Total Pot: ${round.pot} chips<br>
+                <strong>Player Changes:</strong>
+                <ul>
+                    ${round.changes.map(change => `<li>${change.name}: ${change.change > 0 ? '+' : ''}${change.change}</li>`).join('')}
+                </ul>
+            `;
+            historyContainer.appendChild(roundDiv);
+        });
+    }
+
+    
     </script>
 </body>
 </html>
