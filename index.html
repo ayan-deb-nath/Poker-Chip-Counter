@@ -96,6 +96,54 @@
             background-color: #d3d3d3;
             color: black;
         }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 800px;  /* Increased width to fit more content */
+            max-height: 90vh;  /* Ensures it fits on the screen */
+            overflow-y: auto;
+            font-size: 1.2em;  /* Slightly increased font size for readability */
+            line-height: 1.5;  /* Increased line height for better readability */
+            word-wrap: break-word; /* Ensure text wraps properly */
+            white-space: normal;  /* Ensure text wraps to the next line */
+        }
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        .info-icon {
+    cursor: pointer;
+    font-size: 3em; /* Icon size */
+    position: fixed;
+    top: 20px;
+    right: 40px; /* Adjusted position to the left */
+    color: #fff; /* Icon color */
+    background-color: #000; /* Circle background color */
+    border-radius: 50%; /* Ensure it's circular */
+    width: 70px; /* Set width */
+    height: 70px; /* Set height to the same value as width */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it stays visible */
+}
+
     </style>
 </head>
 <body>
@@ -126,6 +174,17 @@
                 <option value="">--Select Winner--</option>
             </select>
             <button class="winner" id="declareWinner">Declare Winner</button>
+        </div>
+    </div>
+
+    <span class="info-icon" onclick="showInfo()">i</span>
+
+    <!-- Modal -->
+    <div class="modal" id="infoModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeInfo()">&times;</span>
+            <h2>How to Use the Poker Chip Counter</h2>
+            <pre id="instructionText"></pre>
         </div>
     </div>
 
@@ -266,6 +325,61 @@
 
         addPlayerButton.addEventListener('click', addPlayer);
         declareWinnerButton.addEventListener('click', declareWinner);
+
+        // Show instructions when clicking on "i" icon
+        function showInfo() {
+            const instructionText = `
+Poker Chip Counter - Instructions
+
+Purpose:
+This tool helps you manage poker chip counts for players during card games. You can add players, assign initial chips, place bets, and declare a winner. It's a virtual way to keep track of poker chips without using physical chips.
+
+How to Use:
+
+1. **Add Players:**
+   - Enter the player's name in the "Player Name" field.
+   - Enter the initial chip count for the player in the "Initial Chips" field.
+   - Click the "Add Player" button to add the player to the game.
+
+2. **Adjust Chips:**
+   - For each player, you can adjust their chip count by clicking the "+" buttons for white (1 chip), red (5 chips), blue (10 chips), or green (25 chips).
+   - You can also manually update the chip count by entering a value in the "Change amount" field and clicking the "Update" button.
+   
+3. **Fold/Unfold Player:**
+   - If a player wants to fold, click the "Fold" button.
+   - You will be asked to enter the fold amount (how many chips the player is folding).
+   - To unroll a folded player, click the "Unfold" button.
+
+4. **Declare Winner:**
+   - Enter the bet amount per player in the "Bet Amount" field.
+   - Select the winner from the dropdown list.
+   - Click "Declare Winner" to add the total pot (combined bet amounts) to the winner's chip count.
+   
+5. **Remove Player:**
+   - To remove a player from the game, click the "Remove" button next to their name.
+
+Enjoy using the Poker Chip Counter!
+
+Creator: Ayan Deb Nath
+
+Let’s be friends😄
+            `;
+            document.getElementById('instructionText').textContent = instructionText;
+            document.getElementById('infoModal').style.display = 'flex';
+        }
+
+        // Close the instruction modal when clicking outside
+        function closeInfo() {
+            document.getElementById('infoModal').style.display = 'none';
+        }
+
+        // Add event listener to close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('infoModal');
+            if (event.target === modal) {
+                closeInfo();
+            }
+        });
     </script>
 </body>
 </html>
