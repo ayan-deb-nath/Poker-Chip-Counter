@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poker Chip Counter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        #addPlayer {
+            background-color: #4dff4d;
+        }
+        .white {
+            background-color: #ffffff;
+            color: black;
+            border: 1px solid #ccc;
+        }
+        .red {
+            background-color: #ff4d4d;
+        }
+        .blue {
+            background-color: #4d79ff;
+        }
+        .green {
+            background-color: #4dff4d;
+        }
+        .update {
+            background-color: #add8e6;
+        }
+        .remove {
+            background-color: #ff6666;
+        }
+        .winner {
+            background-color: #ffd700;
+            color: black;
+        }
+        .player {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        .chip-controls button {
+            margin-right: 5px;
+        }
+        .chip-input {
+            width: 70px;
+        }
+        .player span {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .fold {
+            margin-left: 10px;
+            background-color: #d3d3d3;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Poker Chip Counter</h1>
+
+        <div class="form-group">
+            <label for="playerName">Player Name:</label>
+            <input type="text" id="playerName" placeholder="Enter player name">
+        </div>
+
+        <div class="form-group">
+            <label for="chipCount">Initial Chips:</label>
+            <input type="number" id="chipCount" placeholder="Enter initial chip count">
+        </div>
+
+        <button id="addPlayer">Add Player</button>
+
+        <h2>Players</h2>
+        <div id="playerList"></div>
+
+        <h2>Game Actions</h2>
+        <div>
+            <label for="betAmount">Bet Amount (Per Player):</label>
+            <input type="number" id="betAmount" placeholder="Enter bet amount">
+            <label for="winnerSelect">Select Winner:</label>
+            <select id="winnerSelect">
+                <option value="">--Select Winner--</option>
+            </select>
+            <button class="winner" id="declareWinner">Declare Winner</button>
+        </div>
+    </div>
+
+    <script>
+        const playerList = document.getElementById('playerList');
+        const playerNameInput = document.getElementById('playerName');
+        const chipCountInput = document.getElementById('chipCount');
+        const addPlayerButton = document.getElementById('addPlayer');
+        const declareWinnerButton = document.getElementById('declareWinner');
+        const betAmountInput = document.getElementById('betAmount');
+        const winnerSelect = document.getElementById('winnerSelect');
+
+        let players = [];
+        const chipValues = {
+            white: 1,
+            red: 5,
+            blue: 10,
+            green: 25
+        };
+
+        function renderPlayers() {
+            playerList.innerHTML = '';
+            winnerSelect.innerHTML = '<option value="">--Select Winner--</option>';
+
+            players.forEach((player, index) => {
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'player';
+                playerDiv.innerHTML = `
+                    <span>${player.name}: ${player.chips} chips (${player.folded ? 'Folded' : 'Active'})</span>
+                    <div class="chip-controls">
+                        <input type="number" class="chip-input" id="chipChange${index}" placeholder="Change amount">
+                        <button class="update" onclick="updateChips(${index})">Update</button>
+                        <button class="remove" onclick="removePlayer(${index})">Remove</button>
+                        <button class="fold" onclick="toggleFold(${index})">${player.folded ? 'Unfold' : 'Fold'}</button>
+                    </div>
+                    <div>
+                        <button class="white" onclick="addChips(${index}, 'white')">+1</button>
+                        <button class="red" onclick="addChips(${index}, 'red')">+5</button>
+                        <button class="blue" onclick="addChips(${index}, 'blue')">+10</button>
+                        <button class="green" onclick="addChips(${index}, 'green')">+25</button>
+                    </div>
+                `;
+                playerList.appendChild(playerDiv);
+
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = player.name;
+                winnerSelect.appendChild(option);
+            });
+        }
+
+        function addPlayer() {
+            const name = playerNameInput.value.trim();
+            const chips = parseInt(chipCountInput.value, 10);
+
+            if (name && !isNaN(chips)) {
+                players.push({ name, chips, folded: false, foldAmount: 0 });
+                playerNameInput.value = '';
+                chipCountInput.value = '';
+                renderPlayers();
+            } else {
+                alert('Please enter a valid name and chip count.');
+            }
+        }
+
+        function updateChips(index) {
+            const chipInput = document.getElementById(`chipChange${index}`);
+            const chipChange = parseInt(chipInput.value, 10);
+
+            if (!isNaN(chipChange)) {
+                players[index].chips = chipChange;
+                renderPlayers();
+            } else {
+                alert('Please enter a valid number.');
+            }
+        }
+
+        function addChips(index, chipType) {
+            players[index].chips += chipValues[chipType];
+            renderPlayers();
+        }
+
+        function removePlayer(index) {
+            players.splice(index, 1);
+            renderPlayers();
+        }
+
+        function toggleFold(index) {
+            const player = players[index];
+
+            if (player.folded) {
+                player.folded = false;
+                player.foldAmount = 0;  // Reset fold amount when unfold
+            } else {
+                const foldedAmount = prompt('Enter how much you are folding for:');
+                const foldAmount = parseInt(foldedAmount, 10);
+
+                if (isNaN(foldAmount) || foldAmount <= 0 || foldAmount > player.chips) {
+                    alert('Invalid fold amount.');
+                    return;
+                }
+
+                player.folded = true;
+                player.foldAmount = foldAmount; // Store the fold amount
+                player.chips -= foldAmount; // Deduct the fold amount immediately
+            }
+
+            renderPlayers();
+        }
+
+        function declareWinner() {
+            const betAmount = parseInt(betAmountInput.value, 10);
+            const winnerIndex = parseInt(winnerSelect.value, 10);
+
+            if (isNaN(betAmount) || isNaN(winnerIndex)) {
+                alert('Please enter a valid bet amount and select a winner.');
+                return;
+            }
+
+            let totalPot = 0;
+
+            // Loop through all players and deduct the bet amount from non-winners
+            players.forEach((player, index) => {
+                if (player.folded) {
+                    totalPot += player.foldAmount;  // Add the folded player's chips to the pot
+                } else {
+                    totalPot += betAmount;  // Only active players contribute their bet amount
+                    player.chips -= betAmount; // Deduct the bet amount from active players
+                }
+            });
+
+            // Add the total pot to the winner's chips
+            players[winnerIndex].chips += totalPot;
+
+            // Call render to update the UI with the new chip counts
+            renderPlayers();
+        }
+
+        addPlayerButton.addEventListener('click', addPlayer);
+        declareWinnerButton.addEventListener('click', declareWinner);
+    </script>
+</body>
+</html>
